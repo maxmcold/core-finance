@@ -3,20 +3,22 @@ package com.mdv.corefinance.controllers;
 
 import com.mdv.corefinance.beans.ErrorDetails;
 import com.mdv.corefinance.exceptions.AccountNotFoundException;
-import com.mdv.corefinance.exceptions.GenericRestException;
+import com.mdv.corefinance.exceptions.GenericUIException;
 import com.mdv.corefinance.exceptions.LoanNotFoundException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
-@ControllerAdvice(basePackageClasses = LoanRestController.class)
-public class LoanRestControllerAdvice extends ResponseEntityExceptionHandler {
+@ControllerAdvice(basePackageClasses = LoanUIController.class)
+public class LoanUIControllerAdvice extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(LoanNotFoundException.class)
     public ResponseEntity<ErrorDetails> handleLoanNotFoundException(LoanNotFoundException ex, HttpServletRequest request) {
@@ -29,7 +31,7 @@ public class LoanRestControllerAdvice extends ResponseEntityExceptionHandler {
         return errors;
     }
 
-    @ExceptionHandler(GenericRestException.class)
+    @ExceptionHandler(GenericUIException.class)
     ResponseEntity<?> handleGenericException(HttpServletRequest request, Throwable ex) {
         HttpStatus status = getStatus(request);
         ErrorDetails errorDetails = new ErrorDetails(new Date(), ex.getMessage(),

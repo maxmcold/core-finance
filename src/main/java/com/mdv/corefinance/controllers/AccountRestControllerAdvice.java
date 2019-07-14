@@ -3,6 +3,7 @@ package com.mdv.corefinance.controllers;
 
 
 import com.mdv.corefinance.beans.ErrorDetails;
+import com.mdv.corefinance.exceptions.AccountNotFoundException;
 import com.mdv.corefinance.exceptions.GenericRestException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -10,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,13 +23,25 @@ public class AccountRestControllerAdvice extends ResponseEntityExceptionHandler 
 
 
 
-    @ExceptionHandler(GenericRestException.class)
     ResponseEntity<?> handleGenericException(HttpServletRequest request, Throwable ex) {
         HttpStatus status = getStatus(request);
 
         ErrorDetails errorDetails = new ErrorDetails(new Date(), ex.getMessage(),
                 request.getServletPath());
         ResponseEntity<ErrorDetails> errors =  new ResponseEntity<>(errorDetails, status);
+
+
+        return errors;
+    }
+
+    @ExceptionHandler(AccountNotFoundException.class)
+    ResponseEntity<?> handleAccountNotFoundException(HttpServletRequest request, Throwable ex) {
+        HttpStatus status = getStatus(request);
+
+        ErrorDetails errorDetails = new ErrorDetails(new Date(), ex.getMessage(),
+                request.getServletPath());
+        ResponseEntity<ErrorDetails> errors =  new ResponseEntity<>(errorDetails, status);
+
 
         return errors;
     }

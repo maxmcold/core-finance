@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Transaction</title>
+</head>
+<body>
+<h1>Transaction List</h1>
+<p th:text="${message}"></p>
+
+
+
+<a href="subscriber.html" th:href="@{/subscriber(sub=${subscriber.id})}"><b th:text="${subscriber.id}">view subscriber</b></a>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Type</th>
+        <th>Amount</th>
+        <th>Courrency</th>
+        <th>from</th>
+        <th>to</th>
+        <th>timestamp</th>
+
+
+
+
+
+    </tr>
+    <tr th:each="transaction : ${transactions}">
+        <td th:text="${transaction.id}">id</td>
+        <td th:text="${transaction.type}">account ID</td>
+        <td th:text="${transaction.amount}">amount</td>
+
+        <td th:text="${transaction.currency}">currency</td>
+        <td>
+            <a href="subscriber.html" th:href="@{/subscriber(sub=${subscriber.id})}"><b th:text="${transaction.from}">from</b></a>
+        </td>
+        <td>
+            <a href="subscriber.html" th:href="@{/subscriber(sub=${subscriber.id})}"><b th:text="${transaction.to}">to</b></a>
+        </td>
+        <td th:text="${transaction.getTimestamp()}">balance</td>
+
+
+    </tr>
+</table>
+
+
+
+</body>
+</html>

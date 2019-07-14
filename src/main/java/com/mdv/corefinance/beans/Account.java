@@ -21,6 +21,8 @@ public class Account {
     public String type;
     public String productId;
     public Double balance;
+    public Double principal;
+    public Double fee;
 
     public Account(Double cu, String aid, String cy) {
         this.balance = cu;
@@ -29,11 +31,21 @@ public class Account {
 
 
     }
-    public Account(ObjectId index, Double cu, String aid, String cy) {
+    public Account(ObjectId index, Double cu, String aid, String currency) {
         this.id = index;
         this.balance = cu;
         this.accountid = aid;
-        this.currency = cy;
+        this.currency = currency;
+        this.id = index;
+
+
+    }
+    public Account(ObjectId index, Double principal, Double fee, String aid, String currency) {
+        this.id = index;
+        this.principal = principal;
+        this.fee = fee;
+        this.accountid = aid;
+        this.currency = currency;
         this.id = index;
 
 

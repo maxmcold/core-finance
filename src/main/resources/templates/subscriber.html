@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Subscriber</title>
+</head>
+<body>
+<p th:text="'subscriber id: '+${subscriber.id}"></p>
+<p th:text="'MSISDN: '+${subscriber.msisdn}"></p>
+<p th:text="'type: '+${subscriber.type}"></p>
+
+<p>
+    <a href="accounts.html" th:href="@{/accountBySub(sub=${subscriber.id})}">view accounts</a>
+</p>
+<hr/>
+<p th:text="${message}"></p>
+<hr/>
+
+<form action="#" th:action="@{/credit}" th:object="${subscriber}" method="get">
+    <ul th:each="account : ${subscriber.accounts}">
+        <p><li th:text="${account.type}+': '+${account.balance}">
+            <ul>
+                <li th:text="'principal:'+${account.principal}"></li>
+                <li th:text="'fee:'+${account.fee}"></li>
+            </ul>
+    </li><a href="transactions.html" th:href="@{/transactions(aid=${account.id},sid=${account.subscriberId})}">view transactions</a></p>
+
+    </ul>
+    <p>Credit amount: <input type="text" th:name="amount"/>
+    <input type="hidden" name="sid" th:value="${subscriber.id}"/>
+    <input type="submit" value="Submit" /> </p>
+</form>
+<form action="#" th:action="@{/allow}" th:object="${subscriber}" method="get">
+
+    <p>Allow amount: <input type="text" th:name="amt"/>
+    <input type="hidden" name="sid" th:value="${subscriber.id}"/>
+    <input type="hidden" name="pid" th:value="1"/>
+    <input type="hidden" name="currency" th:value="USD"/>
+    <input type="submit" value="Submit" /></p>
+</form>
+
+<form action="#" th:action="@{/recover}" th:object="${subscriber}" method="get">
+
+    <p>Recover amount: <input type="text" th:name="amt"/>
+        <input type="hidden" name="sid" th:value="${subscriber.id}"/>
+        <input type="hidden" name="pid" th:value="1"/>
+        <input type="hidden" name="cur" th:value="USD"/>
+        <input type="submit" value="Submit" /></p>
+</form>
+<!--a href="accounts.html" th:href="@{allow(sid=${subscriber.id},amt=10,currency=USD,pid=1)}">allow 10 USD</a-->
+
+
+<hr>
+Ledger
+<table>
+    <tr>
+        <th>source</th>
+        <th>target</th>
+        <th>amount</th>
+        <th>Type</th>
+        <th>Currency</th>
+        <th>Timestamp</th>
+
+
+
+
+    </tr>
+
+    <tr th:each="transaction : ${ledger}">
+        <td th:text="${transaction.from}">from</td>
+        <td th:text="${transaction.to}">to</td>
+        <td th:text="${transaction.amount}">amount</td>
+        <td th:text="${transaction.type}">type</td>
+        <td th:text="${transaction.currency}">currency</td>
+        <td th:text="${transaction.timestamp}">timestamp</td>
+
+
+    </tr>
+</table>
+
+</body>
+</html>
