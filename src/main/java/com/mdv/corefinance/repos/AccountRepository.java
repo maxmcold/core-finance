@@ -22,6 +22,12 @@ public interface AccountRepository extends MongoRepository<Account, ObjectId>{
 
     Account findAccountById(ObjectId id);
 
+    Account findAccountByTypeAndProductId(String type,String pid);
+
+    Account findAccountByTypeAndSubscriberId(String type,ObjectId sid);
+
+    Account findAccountByType(String type);
+
 
 
 

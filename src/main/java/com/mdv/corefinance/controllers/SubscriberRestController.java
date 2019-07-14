@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/subscriber")
+@RequestMapping("/sub_api")
 public class SubscriberRestController {
     private static final Logger logger = LoggerFactory.getLogger(SubscriberRestController.class);
 
@@ -31,8 +31,6 @@ public class SubscriberRestController {
     @Value("${server.port}")
     String port;
 
-    @Autowired
-    private Environment env;
 
     @Autowired
     private SubscriberRepository subrepo;
@@ -52,7 +50,8 @@ public class SubscriberRestController {
         }catch(Exception e){
             throw new GenericRestException("No correct Object ID provided for subscriber ID["+sid+"]");
         }
-        //TODO: this is fully hardcoded to test remote API call. Use internal for execution.
+
+        //TODO: this is fully hardcoded to test remote API call. Adjust for scalability.
         final String uri = "http://"+base+":"+port+"/acc_api/getAccBySub?sid="+sid;
         RestTemplate restTemplate = new RestTemplate();
         Subscriber sub = subrepo.findSubscriberById(oid);

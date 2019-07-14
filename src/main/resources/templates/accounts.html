@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Accounts</title>
+</head>
+<body>
+<h1>Account List</h1>
+<a href="accounts.html" th:href="@{/accounts}">view all accounts</a>
+<p th:text="${message}"></p>
+
+
+<table>
+    <tr>
+        <th>ObjectID</th>
+        <th>Account ID</th>
+        <th>Currency</th>
+        <th>SubscriberID</th>
+        <th>Type</th>
+        <th>ProductID</th>
+        <th>Balance</th>
+        <th>Principal</th>
+        <th>Fee</th>
+
+
+
+
+
+    </tr>
+
+    <tr th:each="account : ${accounts}">
+        <td th:text="${account.id}">id</td>
+        <td th:text="${account.accountid}">account ID</td>
+        <td th:text="${account.currency}">currency</td>
+        <td>
+            <a href="subscriber.html" th:href="@{/subscriber(sub=${account.subscriberId})}"><b th:text="${account.subscriberId}">view</b></a>
+        </td>
+        <td th:text="${account.type}">type</td>
+        <td th:text="${account.productId}">product</td>
+        <td th:text="${account.balance}">balance</td>
+        <td th:text="${account.principal}">principal</td>
+        <td th:text="${account.fee}">fee</td>
+
+
+    </tr>
+</table>
+
+
+
+</body>
+</html>

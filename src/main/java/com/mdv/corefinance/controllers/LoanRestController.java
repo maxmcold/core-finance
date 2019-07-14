@@ -2,14 +2,16 @@ package com.mdv.corefinance.controllers;
 
 
 import com.mdv.corefinance.beans.*;
-import com.mdv.corefinance.exceptions.AccountNotFoundException;
+import com.mdv.corefinance.engine.Evaluator;
+import com.mdv.corefinance.engine.Rule;
+import com.mdv.corefinance.exceptions.GenericRestException;
 import com.mdv.corefinance.exceptions.LoanNotFoundException;
-import com.mdv.corefinance.repos.AccountRepository;
-import com.mdv.corefinance.repos.LoanRepository;
-import com.mdv.corefinance.repos.SubscriberRepository;
-import com.mdv.corefinance.repos.TransactionRepository;
+import com.mdv.corefinance.repos.*;
+import com.mdv.corefinance.utils.Constants;
+import com.mdv.corefinance.utils.LocalTimer;
 import com.mongodb.lang.Nullable;
 import org.bson.types.ObjectId;
+import org.hibernate.validator.internal.constraintvalidators.hv.EANValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,163 +29,105 @@ import java.util.*;
 public class LoanRestController {
     private static final Logger logger = LoggerFactory.getLogger(LoanRestController.class);
 
+
+    @Autowired
+    Evaluator evaluator;
+
+    @Autowired
+    private ProductRepository productRepository;
+
     @Autowired
     private SubscriberRepository subrepo;
 
-    @Autowired
-    private LoanRepository loanRepo;
 
     @Autowired
-    private AccountRepository accountRepo;
+    private AccountRepository accountRepository;
+
+    @Autowired
+    private SubscriberRepository subscriberRepository;
 
     @Autowired
     private TransactionRepository transactionRepository;
 
 
-    @Value("fintech.default.currency")
+    @Value("${fintech.default.currency}")
     private String defaultCurrency;
 
+    @Value("${fintech.system.credit.account}")
+    private String systemCreditAccount;
 
-    @RequestMapping("/subsApi")
-    public List<Subscriber> subscribers (){
+    @Value("${fintech.system.recovery.account}")
+    private String systemRecoveryAccount;
 
-        return subrepo.findAll();
-    }
-
-    @RequestMapping("/loans")
-    public List<Loan> loans(){
-        List<Loan> ln = loanRepo.findAll();
-        return ln;
-    }
-
-    @RequestMapping("/glnboid")
-    public Loan getLoanByOid(@RequestParam("_id") String id)  throws LoanNotFoundException {
-        ObjectId oid = null;
-
-        if (null != id && !id.equals("")) {
-            oid = new ObjectId(id);
-            Loan loan = loanRepo.findLoanById(oid);
-            if (null != loan)
-                return loan;
-            else
-                throw new LoanNotFoundException("No loan found with object ID[" + oid + "]");
-
-        } else {
-            throw new LoanNotFoundException("No object ID provided - received NULL or empty string");
-        }
-    }
-
-    @RequestMapping("/gaccboid")
-    public Account getAccountById(@RequestParam("aid") String id) throws AccountNotFoundException {
-        ObjectId oid = null;
-        if (null != id && !id.equals("")) {
-            oid = new ObjectId(id);
-            Account account = accountRepo.findAccountById(oid);
-            if (null != account)
-                return account;
-            else
-                throw new LoanNotFoundException("No account found with object ID[" + oid + "]");
-
-        } else {
-            throw new LoanNotFoundException("No object ID provided - received NULL or empty string");
-        }
-
-    }
-
-
-
-
-    @RequestMapping("/glnbpid")
-    public List<Loan> getLoanByPid(@RequestParam("pid") String pid) throws LoanNotFoundException {
-
-        if (null != pid && !pid.equals("")) {
-            List<Loan> loans = loanRepo.findLoansByProductId(pid);
-            if (loans.isEmpty()){
-                throw new LoanNotFoundException("Load with product ID ["+pid+"] not found");
-            }
-            return loans;
-        } else {
-
-            throw new LoanNotFoundException("No product ID provided - received NULL or empty string");
-        }
-
-
-    }
-
-
-
-    @RequestMapping("/errTest")
-    public List<ErrorDetails> getErrDetails(){
-
-        ErrorDetails errorDetails = new ErrorDetails(new Date(), "test message",
-                "test details");
-        ArrayList<ErrorDetails> al = new ArrayList<>();
-        al.add(errorDetails);
-        logger.debug(al.toString());
-        return al;
-    }
-
-
-    @RequestMapping("/transfer")
-    public Transaction transfer(@RequestParam("from") String from, @RequestParam("to") String to,
-                                @RequestParam("amt") String amount, @RequestParam("type") String type,
-                                @RequestParam("currency") String currency){
-
-        //TODO: check for mandatory input and make this more resilient to error
-
-        Transaction t = new Transaction();
-        t.from = from;
-        t.to = to;
-        t.amount = amount;
-        t.type = type;
-
-        t.currency = (currency.isEmpty()) ? defaultCurrency : currency;
-
-
-        Account source = accountRepo.findAccountById(new ObjectId(from));
-        Account target = accountRepo.findAccountById(new ObjectId(to));
-
-        //check if enough balance
-        Double sourceValue = new Double(source.balance);
-        Double targetValue = new Double(target.balance);
-        Double requiredValue = new Double(amount);
-
-        //TODO: check currency equalisation
-
-
-        if (requiredValue > sourceValue)
-            logger.error("Not enough balance in wallet, required: "+ requiredValue+ " available: " +sourceValue); //TODO: move from error to debug
-        else {
-            source.balance = sourceValue - requiredValue;
-            target.balance = targetValue + requiredValue;
-
-        }
-
-        t.timestamp = Date.from(Instant.now()).toString();
-
-        //TODO: this steps must be rolled back if something goes wrong
-
-        {
-            accountRepo.save(source);
-            accountRepo.save(target);
-            transactionRepository.save(t);
-        }
-        return t;
-
-    }
     @RequestMapping("/credit")
-    public Transaction credit(@RequestParam("account") String account,
-                              @RequestParam("amt") String amount, @RequestParam("pid") String pid,
-                              @RequestParam("currency") String currency){
-        //TODO: check for mandatory input and make this more resilient to error
+    public Transaction credit(@RequestParam("amt") String amount, @RequestParam("pid") String pid, @RequestParam("sid") String sid,
+                              @Nullable @RequestParam("cur") String currency){
 
-        Transaction t = new Transaction();
-        return t;
+        //TODO: check for mandatory input and make this more resilient to error
+        currency = (null ==  currency || currency.isEmpty()) ? defaultCurrency : currency;
+
+        Product p = productRepository.findProductById(new ObjectId(pid));
+        Rule rule = evaluator.evaluate(p.id.toString());
+
+        Transaction transaction = rule.credit(amount,sid,currency);
+       return transaction;
 
     }
 
+    @RequestMapping("/allow")
+    public Transaction allow(@RequestParam("sid") String sid,
+                              @RequestParam("amt") String amount, @RequestParam("pid") String ptype,
+                              @RequestParam("currency") String currency){
+
+        //TODO: check for mandatory input and make this more resilient to error
+        Product p = productRepository.findProductByType(ptype);
+        Rule rule = evaluator.evaluate(p.id.toString());
+        Transaction t = rule.allow(sid,amount,currency);
+
+        return  t;
+
+    }
+
+    @RequestMapping("/recover")
+    public Transaction recover(@RequestParam("sid") String sid,
+                               @RequestParam("amt") String amount, @RequestParam("pid") String ptype,
+                               @Nullable @RequestParam("cur") String currency){
+
+        Product p = productRepository.findProductByType(ptype);
+        Rule rule = evaluator.evaluate(p.id.toString());
+
+        return rule.recover(sid, amount, currency);
+
+    }
+
+    @RequestMapping("/prd")
+    public Double getProduct(@RequestParam("pid") String pid){
+
+        ObjectId oid = new ObjectId(pid);
+
+        Rule rule = evaluator.evaluate(pid);
 
 
+        return new Double(1);
 
+    }
+
+    @RequestMapping("getledgerbysid")
+    public List<Transaction> getLedgerBySubs(@RequestParam("sid") String sid){
+
+        //TODO: manage missing subscriber or wrong input
+        ObjectId oid = new ObjectId(sid);
+        Subscriber subscriber = subscriberRepository.findSubscriberById(oid);
+        subscriber.accounts = accountRepository.findAccountBySubscriberId(oid);
+
+        ArrayList<Transaction> ledger = new ArrayList<>();
+
+        for (Account account : subscriber.accounts){
+            List<Transaction> lt = transactionRepository.findTransactionsByFromOrTo(account.id.toString(),account.id.toString());
+            ledger.addAll(lt);
+        }
+        return ledger;
+
+    }
 
 }

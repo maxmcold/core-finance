@@ -11,7 +11,7 @@ public interface SubscriberRepository extends MongoRepository<Subscriber, Object
     @Override
     List<Subscriber> findAll();
 
-    public Subscriber findSubscriberById(ObjectId id);
+    Subscriber findSubscriberById(ObjectId id);
 
 
 }
