@@ -2,7 +2,7 @@ package com.mdv;
 
 import com.mdv.corefinance.beans.Account;
 import com.mdv.corefinance.repos.AccountRepository;
-import com.mdv.corefinance.repos.LoanRepository;
+
 import org.bson.types.ObjectId;
 import org.junit.Test;
 import org.junit.runner.RunWith;
