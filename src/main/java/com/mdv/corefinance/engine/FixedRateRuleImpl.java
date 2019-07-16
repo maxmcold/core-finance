@@ -1,8 +1,7 @@
 package com.mdv.corefinance.engine;
 
 import com.mdv.corefinance.beans.Account;
-import com.mdv.corefinance.beans.Product;
-import com.mdv.corefinance.beans.Subscriber;
+
 import com.mdv.corefinance.beans.Transaction;
 import com.mdv.corefinance.controllers.LoanRestController;
 import com.mdv.corefinance.exceptions.GenericRestException;
@@ -10,20 +9,20 @@ import com.mdv.corefinance.repos.AccountRepository;
 import com.mdv.corefinance.repos.TransactionRepository;
 import com.mdv.corefinance.utils.Constants;
 import com.mdv.corefinance.utils.LocalTimer;
-import com.mongodb.lang.Nullable;
+
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+
 
 @Component
 public class FixedRateRuleImpl implements Rule {

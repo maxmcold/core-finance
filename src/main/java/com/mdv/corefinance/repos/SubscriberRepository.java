@@ -13,5 +13,9 @@ public interface SubscriberRepository extends MongoRepository<Subscriber, Object
 
     Subscriber findSubscriberById(ObjectId id);
 
+    Subscriber findSubscriberByMsisdnAndType(String msisdn, String type);
+
+    Subscriber findSubscriberByType(String type);
+
 
 }

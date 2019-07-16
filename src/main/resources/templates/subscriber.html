@@ -48,10 +48,25 @@
         <input type="submit" value="Submit" /></p>
 </form>
 <!--a href="accounts.html" th:href="@{allow(sid=${subscriber.id},amt=10,currency=USD,pid=1)}">allow 10 USD</a-->
+<hr>
+<form action="#" th:action="@{/createAccount}" th:object="${subscriber}" method="post">
+    <p>Create account for subscriber <b th:text="${subscriber.id}"></b></p>
+        <p>Type:
+            <select th:name="type">
+            <option th:value="credit" th:text="credit"/>
+            <option th:value="allowance" th:text="allowance"/>
+            </select>
+            <input type="hidden" name="sid" th:value="${subscriber.id}"/>
+            <input type="hidden" name="pid" th:value="1"/>
+            <input type="hidden" name="cur" th:value="USD"/>
+            <input type="submit" value="Submit" />
+    </p>
 
+</form>
 
 <hr>
-Ledger
+
+<h2>Ledger</h2>
 <table>
     <tr>
         <th>source</th>

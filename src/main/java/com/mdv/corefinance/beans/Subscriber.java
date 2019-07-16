@@ -5,6 +5,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.util.Date;
 import java.util.List;
 
 @Document(collection = "subscriber")
@@ -15,7 +16,12 @@ public class Subscriber {
 
     @Field("MSISDN")
     public String msisdn;
+
+    @Field("type")
     public String type;
+
+    @Field("CreateDate")
+    public Date createDate;
 
     public String getMsisdn() {
         return msisdn;

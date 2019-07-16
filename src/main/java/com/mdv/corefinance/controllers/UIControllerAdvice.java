@@ -17,8 +17,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
-@ControllerAdvice(basePackageClasses = LoanUIController.class)
-public class LoanUIControllerAdvice extends ResponseEntityExceptionHandler {
+@ControllerAdvice(basePackageClasses = UIController.class)
+public class UIControllerAdvice extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(LoanNotFoundException.class)
     public ResponseEntity<ErrorDetails> handleLoanNotFoundException(LoanNotFoundException ex, HttpServletRequest request) {

@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 
 
 @Component
-public class Evaluator {
+public class RuleFactory {
     private static final Logger logger = LoggerFactory.getLogger(LoanRestController.class);
 
 
@@ -28,11 +28,11 @@ public class Evaluator {
     @Autowired
     private  FeeWithLatePaymentRuleImpl feeWithLatePaymentRule;
 
-    public Evaluator(){
+    public RuleFactory(){
 
     }
 
-    public Rule evaluate(String pid){
+    public Rule getRule(String pid){
 
         try {
             ObjectId oid = new ObjectId(pid);

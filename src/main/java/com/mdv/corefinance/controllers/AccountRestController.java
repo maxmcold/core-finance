@@ -2,6 +2,7 @@ package com.mdv.corefinance.controllers;
 
 
 import com.mdv.corefinance.beans.Account;
+import com.mdv.corefinance.exceptions.AccountAlreadyExistsException;
 import com.mdv.corefinance.exceptions.AccountNotFoundException;
 import com.mdv.corefinance.exceptions.GenericRestException;
 import com.mdv.corefinance.repos.AccountRepository;
@@ -10,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,7 +26,7 @@ public class AccountRestController {
     @Autowired
     public AccountRepository accountRepository;
 
-    @RequestMapping("getAccounts")
+    @RequestMapping(value = "accounts", method = RequestMethod.GET)
     public List<Account> getAllAccounts(){
         List<Account> accounts = accountRepository.findAll();
         return accounts;
@@ -88,6 +90,29 @@ public class AccountRestController {
             return account.type;
         else
             throw new AccountNotFoundException("No account found with object ID[" + oid + "]");
+
+    }
+
+    @RequestMapping(value = "/account", method = RequestMethod.POST)
+    public Account create(@RequestParam("sid") String sid, @RequestParam("type") String type, @RequestParam("pid") String ptype){
+        try {
+            ObjectId subscriberId = new ObjectId(sid);
+
+            Account acc = accountRepository.findAccountByTypeAndSubscriberIdAndProductId(type, subscriberId, ptype);
+            if (null != acc)
+                throw new AccountAlreadyExistsException("Account for subscriber [" + sid + "], type [+" + type + "], pid [" + ptype +
+                        "] already exists in our records");
+            acc = new Account();
+            acc.productId = ptype;
+            acc.type = type;
+            acc.subscriberId = subscriberId;
+            accountRepository.save(acc);
+            return acc;
+        }catch(AccountAlreadyExistsException e){
+            logger.error(e.getMessage(),e);
+        }
+        //return empty account not null;
+        return new Account();
 
     }
 

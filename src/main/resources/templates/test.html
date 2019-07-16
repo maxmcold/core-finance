@@ -1,17 +1,21 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title data-th-utext="#{test.title}">Test Page</title>
+    <title>Test Page</title>
 
 </head>
 <body>
 <p>This is a test for following account ID:</p>
-<p data-th-utext="${aid}" />
+
 
 <pre class="content">
 <p data-th-utext="${out}" />
 </pre>
+<pre th:text="${out.errorDescription}">generic error message</pre>
 
+<pre th:text="${out}"/>
+
+<pre th:text="${out.out}"/>
 </body>
 </html>

@@ -35,6 +35,10 @@ public class Transaction {
     @Field("timestamp")
     public String timestamp;
 
+
+    @Field("description")
+    public String descrition;
+
     private String result;
 
     public String getErrorMessage() {
